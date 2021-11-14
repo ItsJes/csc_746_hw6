@@ -1,0 +1,1 @@
+/opt/gcc/8.3.0/bin/c++ -O3 -DNDEBUG CMakeFiles/mpi_2dmesh.dir/mpi_2dmesh.cpp.o -o mpi_2dmesh  -Wl,-rpath,/global/common/software/m3169/openmpi/4.0.2/gnu/lib /global/common/software/m3169/openmpi/4.0.2/gnu/lib/libmpi.so 

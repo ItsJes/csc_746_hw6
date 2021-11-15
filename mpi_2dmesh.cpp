@@ -418,7 +418,7 @@ sendStridedBuffer(float *srcBuf,
    int subDims[] = {size / 10}; // dims of subArray
 
    
-	   int subOffset[] = {1, 1};
+	   int subOffset[] = {1};
            int ndims = 1;
 
            MPI_Datatype mysubarray;  // create the mysubarray object and initialize it
@@ -478,8 +478,8 @@ recvStridedBuffer(float *dstBuf,
    // at dstOffsetColumn, dstOffsetRow, and that is expectedWidth, expectedHeight in size.
    //
    
-           int subOffset[] = {1, 1};
-           int ndims=1;
+           int subOffset[] = {1};
+           int ndims = 1;
 
            MPI_Datatype mysubarray;  // create the mysubarray object and initialize it
            MPI_Type_create_subarray(ndims, baseDims, subDims, subOffset, MPI_ORDER_C, MPI_FLOAT, &mysubarray);
@@ -861,11 +861,11 @@ int main(int ac, char *av[]) {
       printf("\n\nTiming results from rank 0: \n");
       printf("\tScatter time:\t%6.4f (ms) \n", elapsed_scatter_time*1000.0);
       printf("\tSobel time:\t%6.4f (ms) \n", elapsed_sobel_time*1000.0);
-      printf("\tGather time:\t%6.4f (ms) \n", elapsed_gather_time*1000.0);
-      printf("\tNumber of Messages: %6.4f\n", num_messages);
-      printf("\tTotal data moved: %6.4f\n", num_data);
-      printf("\tNumber of tiles: %6.4f\n", num_tiles);
-      printf("\tSize of tiles: %6.4f\n", size_tiles);
+      printf("\tGather time:\t%6.4f (ms) \n \n", elapsed_gather_time*1000.0);
+      printf("\tNumber of Messages: \t%d \n", num_messages);
+      printf("\tTotal data moved: \t%d \n", num_data);
+     // printf("\tNumber of tiles: %6.4f\n", num_tiles);
+     // printf("\tSize of tiles: %6.4f\n", size_tiles);
    }
 
    MPI_Finalize();

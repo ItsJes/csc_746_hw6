@@ -472,8 +472,8 @@ recvStridedBuffer(float *dstBuf,
     MPI_Type_create_subarray(ndims, baseDims, subDims, subOffset, MPI_ORDER_C, MPI_FLOAT, &mysubarray);
     MPI_Type_commit(&mysubarray);
    
-    MPI_Recv(dstBuf, 1, mysubarray, fromRank, msgTag, MPI_COMM_WORLD, &stat); // send the subarray
-    MPI_Get_count(&stat, MPI_FLOAT, &rcount);
+    MPI_Recv(dstBuf, 1, mysubarray, fromRank, msgTag, MPI_COMM_WORLD, &stat);
+    MPI_Get_count(&stat, MPI_FLOAT, &rcount); // check how many MPI_INTs we recv'd
 //	    fprintf(stderr, "[rank %d] received %d items:  \n", myrank, rcount);
     num_data += rcount;
 	  // MPI_Recv(&rbuf[0], size, MPI_FLOAT, fromRank, msgTag, MPI_COMM_WORLD, &stat);
@@ -502,26 +502,19 @@ sobel_filtered_pixel(float *s, int i, int j , int ncols, int nrows, float *gx, f
 
    // ADD CODE HERE: add your code here for computing the sobel stencil computation at location (i,j)
    // of input s, returning a float
-    float gradX = gx[0] * s[(i * ncols + j) - ncols - 1] +
-                   gx[1] * s[(i * ncols + j) - ncols] +
-                   gx[2] * s[(i * ncols + j) - (ncols + 1)] +
-                   gx[3] * s[(i * ncols + j) - 1] +
-                   gx[4] * s[(i * ncols + j)] +
-                   gx[5] * s[(i * ncols + j) + 1] +
-                   gx[6] * s[(i * ncols + j) + ncols - 1] +
-                   gx[7] * s[(i * ncols + j) + ncols] +
-                   gx[8] * s[(i * ncols + j) + ncols + 1];
-  
-     float gradY = gy[0] * s[(i * ncols + j) - ncols - 1] +
-                   gy[1] * s[(i * ncols + j) - ncols] +
-                   gy[2] * s[(i * ncols + j) - ncols + 1] +
-                   gy[3] * s[(i * ncols + j) - 1] +
-                   gy[4] * s[(i * ncols + j)] +
-                   gy[5] * s[(i * ncols + j) + 1] +
-                   gy[6] * s[(i * ncols + j) + ncols - 1] +
-                   gy[7] * s[(i * ncols + j) + ncols] +
-                   gy[8] * s[(i * ncols + j) + ncols + 1];
-  
+    float gradX = 0.0;
+    float gradY = 0.0;
+
+    //j: row i:col
+    int s_indx = (i-1)*ncols + (j-1);
+    
+    for (int jj = 0; jj < 3; jj++, s_indx += ncols){
+       for (int ii = 0; ii < 3; ii++){
+          gradx += s[ii + s_indx] * gx[ii + jj * 3];
+          grady += s[ii + s_indx] * gy[ii + jj * 3];
+       }
+    }
+
      float gradXsquared = gradX * gradX;
      float gradYsquared = gradY * gradY;
   
@@ -557,8 +550,8 @@ do_sobel_filtering(float *in, float *out, int ncols, int nrows)
     }
  
    #pragma omp parallel for collapse(2)
-   for(int i = 1; i < nrows - 1; i++){
-      for(int j = 1; j < ncols - 1; j++){
+   for(int i = 0; i < nrows; i++){
+      for(int j = 0; j < ncols; j++){
          out[j + i * ncols] = sobel_filtered_pixel(in, i, j, ncols, nrows, Gx, Gy);
       } 
    }

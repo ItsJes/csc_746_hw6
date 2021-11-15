@@ -414,12 +414,12 @@ sendStridedBuffer(float *srcBuf,
   // printf(" I am rank %d of %d total ranks \n", myrank, nranks);
    
    int size = sendWidth * sendHeight;
-//   int baseDims[2] = {srcHeight, srcWidth};
-   int baseDims[] = {size}; // dims of baseArray
-   int subDims[] = {sendHeight, sendWidth}; // dims of subArray
+   int baseDims[2] = {srcHeight, srcWidth};
+  // int baseDims[] = {size}; // dims of baseArray
+   int subDims[2] = {sendHeight, sendWidth}; // dims of subArray
 
    
-   int subOffset[] = {srcOffsetRow, srcOffsetColumn};
+   int subOffset[2] = {srcOffsetRow, srcOffsetColumn};
    int ndims = 2;
 
    MPI_Datatype mysubarray;  // create the mysubarray object and initialize it
@@ -447,9 +447,9 @@ recvStridedBuffer(float *dstBuf,
 
    int msgTag = 0;
    int size = dstWidth * dstHeight;
-  // int baseDims[2] = {dstHeight, dstWidth};
-   int baseDims[] = {size}; // dims of baseArray: 3 rows, 4 columns
-   int subDims[] = {expectedHeight, expectedWidth}; // dims of subArray: 2 rows, 3 columns
+   int baseDims[2] = {dstHeight, dstWidth};
+  // int baseDims[] = {size}; // dims of baseArray: 3 rows, 4 columns
+   int subDims[2] = {expectedHeight, expectedWidth}; // dims of subArray: 2 rows, 3 columns
    int recvSize[2];
    MPI_Status stat;
    int rcount;
@@ -465,7 +465,7 @@ recvStridedBuffer(float *dstBuf,
    // at dstOffsetColumn, dstOffsetRow, and that is expectedWidth, expectedHeight in size.
    //
    
-    int subOffset[] = {dstOffsetRow, dstOffsetColumn};
+    int subOffset[2] = {dstOffsetRow, dstOffsetColumn};
     int ndims = 2;
 
     MPI_Datatype mysubarray;  // create the mysubarray object and initialize it

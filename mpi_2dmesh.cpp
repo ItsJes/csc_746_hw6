@@ -491,6 +491,8 @@ recvStridedBuffer(float *dstBuf,
 // suggest using your cpu code from HW5, no OpenMP parallelism 
 //
 
+
+// Professor Bethels sobel_filter_pixel from slides
 float
 sobel_filtered_pixel(float *s, int i, int j , int ncols, int nrows, float *gx, float *gy)
 {
@@ -498,30 +500,24 @@ sobel_filtered_pixel(float *s, int i, int j , int ncols, int nrows, float *gx, f
 
    // ADD CODE HERE: add your code here for computing the sobel stencil computation at location (i,j)
    // of input s, returning a float
-    float gradX = gx[0] * s[(i * ncols + j) - ncols - 1] +
-                   gx[1] * s[(i * ncols + j) - ncols] +
-                   gx[2] * s[(i * ncols + j) - (ncols + 1)] +
-                   gx[3] * s[(i * ncols + j) - 1] +
-                   gx[4] * s[(i * ncols + j)] +
-                   gx[5] * s[(i * ncols + j) + 1] +
-                   gx[6] * s[(i * ncols + j) + ncols - 1] +
-                   gx[7] * s[(i * ncols + j) + ncols] +
-                   gx[8] * s[(i * ncols + j) + ncols + 1];
-  
-     float gradY = gy[0] * s[(i * ncols + j) - ncols - 1] +
-                   gy[1] * s[(i * ncols + j) - ncols] +
-                   gy[2] * s[(i * ncols + j) - ncols + 1] +
-                   gy[3] * s[(i * ncols + j) - 1] +
-                   gy[4] * s[(i * ncols + j)] +
-                   gy[5] * s[(i * ncols + j) + 1] +
-                   gy[6] * s[(i * ncols + j) + ncols - 1] +
-                   gy[7] * s[(i * ncols + j) + ncols] +
-                   gy[8] * s[(i * ncols + j) + ncols + 1];
-  
-     float gradXsquared = gradX * gradX;
-     float gradYsquared = gradY * gradY;
-  
-     return sqrt(gradXsquared + gradYsquared);
+    if(i < 1 || i > dims[0] - 2 || j < 1 || j > dims[1] - 2){
+        return 0.0
+    }
+    
+    int s_indx = (j - 1) * dims[0] + i - 1;
+    
+    double g_x = 0.0;
+    double g+y = 0.0;
+    
+    for(int x = 0; x < 3; x++, s_indx += dims[0]){
+        for(int y = 0; y < 3; y++){
+            g_x += (s[s_indx + y] * gx[x * 3 + y]);
+            g_y += (s[s_indx + y] * gy[x * 3 + y]);
+        }
+    
+    }
+    
+    return sqrt(g_x * g_x + g_y * g_y);
 }
 
 

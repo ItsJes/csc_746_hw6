@@ -178,8 +178,8 @@ computeMeshDecomposition(AppState *as, vector < vector < Tile2D > > *tileArray) 
       num_tiles = xtiles;
       size_tiles = xsize;
 
-      printf("number of xtiles: %d", xtiles);
-      printf("size of each xtiles: %d", xsize);
+      printf("number of xtiles: %d \n", xtiles);
+      printf("size of each xtiles: %d \n", xsize);
 
       int xval=0;
       for (int i=0; i<xtiles; i++, xval+=xsize) {
@@ -216,8 +216,8 @@ computeMeshDecomposition(AppState *as, vector < vector < Tile2D > > *tileArray) 
       num_tiles = xtiles;
       size_tiles = xsize;
 
-      printf("number of xtiles: %d", xtiles);
-      printf("size of each xtiles: %d", xsize);
+      printf("number of xtiles: %d \n", xtiles);
+      printf("size of each xtiles: %d \n", xsize);
 
       int xval=0;
       for (int i=0; i<xtiles; i++, xval+=xsize) {
@@ -414,23 +414,23 @@ sendStridedBuffer(float *srcBuf,
   // printf(" I am rank %d of %d total ranks \n", myrank, nranks);
    
    int size = sendWidth * sendHeight;
-//   int baseDims[] = {srcHeight, srcWidth};
-   int baseDims[] = {size}; // dims of baseArray
-   int subDims[] = {sendHeight, sendWidth}; // dims of subArray
+   int baseDims[2] = {srcHeight, srcWidth};
+//   int baseDims[2] = {size}; // dims of baseArray
+   int subDims[2] = {sendHeight, sendWidth}; // dims of subArray
 
    
-	   int subOffset[] = {srcOffsetRow, srcOffsetColumn};
-           int ndims = 2;
+   int subOffset[2] = {srcOffsetRow, srcOffsetColumn};
+   int ndims = 2;
 
-           MPI_Datatype mysubarray;  // create the mysubarray object and initialize it
-           MPI_Type_create_subarray(ndims, baseDims, subDims, subOffset, MPI_ORDER_C, MPI_FLOAT, &mysubarray);
-           MPI_Type_commit(&mysubarray);
+   MPI_Datatype mysubarray;  // create the mysubarray object and initialize it
+   MPI_Type_create_subarray(ndims, baseDims, subDims, subOffset, MPI_ORDER_C, MPI_FLOAT, &mysubarray);
+   MPI_Type_commit(&mysubarray);
    
 
 
   
-	    MPI_Send(srcBuf, 1, mysubarray, toRank, msgTag, MPI_COMM_WORLD); // send the subarray
-	    num_messages++;
+   MPI_Send(srcBuf, 1, mysubarray, toRank, msgTag, MPI_COMM_WORLD); // send the subarray
+   num_messages++;
    
    
 
@@ -447,9 +447,9 @@ recvStridedBuffer(float *dstBuf,
 
    int msgTag = 0;
    int size = dstWidth * dstHeight;
-  // int baseDims[] = {dstHeight, dstWidth};
-   int baseDims[] = {size}; // dims of baseArray: 3 rows, 4 columns
-   int subDims[] = {expectedHeight, expectedWidth}; // dims of subArray: 2 rows, 3 columns
+   int baseDims[2] = {dstHeight, dstWidth};
+   //int baseDims[2] = {size}; // dims of baseArray: 3 rows, 4 columns
+   int subDims[2] = {expectedHeight, expectedWidth}; // dims of subArray: 2 rows, 3 columns
    int recvSize[2];
    MPI_Status stat;
    int rcount;
@@ -465,17 +465,17 @@ recvStridedBuffer(float *dstBuf,
    // at dstOffsetColumn, dstOffsetRow, and that is expectedWidth, expectedHeight in size.
    //
    
-           int subOffset[] = {dstOffsetRow, dstOffsetColumn};
-           int ndims = 2;
+    int subOffset[2] = {dstOffsetRow, dstOffsetColumn};
+    int ndims = 2;
 
-           MPI_Datatype mysubarray;  // create the mysubarray object and initialize it
-           MPI_Type_create_subarray(ndims, baseDims, subDims, subOffset, MPI_ORDER_C, MPI_FLOAT, &mysubarray);
-           MPI_Type_commit(&mysubarray);
+    MPI_Datatype mysubarray;  // create the mysubarray object and initialize it
+    MPI_Type_create_subarray(ndims, baseDims, subDims, subOffset, MPI_ORDER_C, MPI_FLOAT, &mysubarray);
+    MPI_Type_commit(&mysubarray);
    
-            MPI_Recv(dstBuf, 1, mysubarray, fromRank, msgTag, MPI_COMM_WORLD, &stat); // send the subarray
-            MPI_Get_count(&stat, MPI_FLOAT, &rcount);
+    MPI_Recv(dstBuf, 1, mysubarray, fromRank, msgTag, MPI_COMM_WORLD, &stat); // send the subarray
+    MPI_Get_count(&stat, MPI_FLOAT, &rcount);
 //	    fprintf(stderr, "[rank %d] received %d items:  \n", myrank, rcount);
-	    num_data += rcount;
+    num_data += rcount;
 	  // MPI_Recv(&rbuf[0], size, MPI_FLOAT, fromRank, msgTag, MPI_COMM_WORLD, &stat);
           // MPI_Get_count(&stat, MPI_FLOAT, &rcount);
    

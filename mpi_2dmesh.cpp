@@ -510,8 +510,8 @@ sobel_filtered_pixel(float *s, int i, int j , int ncols, int nrows, float *gx, f
     
     for (int jj = 0; jj < 3; jj++, s_indx += ncols){
        for (int ii = 0; ii < 3; ii++){
-          gradx += s[ii + s_indx] * gx[ii + jj * 3];
-          grady += s[ii + s_indx] * gy[ii + jj * 3];
+          gradX += s[ii + s_indx] * gx[ii + jj * 3];
+          gradY += s[ii + s_indx] * gy[ii + jj * 3];
        }
     }
 

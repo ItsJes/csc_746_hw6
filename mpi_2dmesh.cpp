@@ -415,11 +415,11 @@ sendStridedBuffer(float *srcBuf,
    
    int size = sendWidth * sendHeight;
    int baseDims[] = {size}; // dims of baseArray
-   int subDims[] = {size / 10}; // dims of subArray
+   int subDims[] = {sendHeight, sendWidth}; // dims of subArray
 
    
-	   int subOffset[] = {1};
-           int ndims = 1;
+	   int subOffset[] = {srcOffsetRow, srcOffsetColumn};
+           int ndims = 2;
 
            MPI_Datatype mysubarray;  // create the mysubarray object and initialize it
            MPI_Type_create_subarray(ndims, baseDims, subDims, subOffset, MPI_ORDER_C, MPI_FLOAT, &mysubarray);
@@ -427,26 +427,11 @@ sendStridedBuffer(float *srcBuf,
    
 
 
-   if(((srcWidth == sendWidth) && (srcHeight == sendHeight) && (srcOffsetRow == 0) && (srcOffsetColumn == 0))){
-	    MPI_Send(&srcBuf, 1, mysubarray, toRank, msgTag, MPI_COMM_WORLD); // send the subarray
+  
+	    MPI_Send(srcBuf, 1, mysubarray, toRank, msgTag, MPI_COMM_WORLD); // send the subarray
 	    num_messages++;
-   }
-   else{
-	   int rbuf = srcOffsetRow * srcWidth + srcOffsetColumn;
-	   float baseArray[size];
-	   int index = 0;
-
-	   for(int i = 0; i < sendHeight; i++, rbuf += srcWidth){
-		   for(int j = 0; j < sendWidth; j++){
-			   baseArray[index] = srcBuf[rbuf + j];
-			   index++;
-		   }
-	   }
-	   printf(" Rank %d in sendStridedBuffer. sending tile data \n", fromRank);
-	   MPI_Send(baseArray, 1, mysubarray, toRank, msgTag, MPI_COMM_WORLD);
-	   num_messages++;
    
-   }
+   
 
    MPI_Type_free(&mysubarray);
 
@@ -462,7 +447,7 @@ recvStridedBuffer(float *dstBuf,
    int msgTag = 0;
    int size = dstWidth * dstHeight;
    int baseDims[] = {size}; // dims of baseArray: 3 rows, 4 columns
-   int subDims[] = {size / 10}; // dims of subArray: 2 rows, 3 columns
+   int subDims[] = {expectedHeight, expectedWidth}; // dims of subArray: 2 rows, 3 columns
    int recvSize[2];
    MPI_Status stat;
    int rcount;
@@ -478,39 +463,22 @@ recvStridedBuffer(float *dstBuf,
    // at dstOffsetColumn, dstOffsetRow, and that is expectedWidth, expectedHeight in size.
    //
    
-           int subOffset[] = {1};
-           int ndims = 1;
+           int subOffset[] = {dstOffsetRow, dstOffsetColumn};
+           int ndims = 2;
 
            MPI_Datatype mysubarray;  // create the mysubarray object and initialize it
            MPI_Type_create_subarray(ndims, baseDims, subDims, subOffset, MPI_ORDER_C, MPI_FLOAT, &mysubarray);
            MPI_Type_commit(&mysubarray);
    
-
-
-   if(((dstWidth == expectedWidth) && (dstHeight == expectedHeight) && (dstOffsetRow == 0) && (dstOffsetColumn == 0))){
-            MPI_Recv(dstBuf, size, MPI_FLOAT, fromRank, msgTag, MPI_COMM_WORLD, &stat); // send the subarray
+            MPI_Recv(dstBuf, 1, mysubarray, fromRank, msgTag, MPI_COMM_WORLD, &stat); // send the subarray
             MPI_Get_count(&stat, MPI_FLOAT, &rcount);
 //	    fprintf(stderr, "[rank %d] received %d items:  \n", myrank, rcount);
 	    num_data += rcount;
-   }
-   else{
-           
-           float rbuf[size];
-           int index = dstOffsetRow * dstWidth + dstOffsetColumn;
-	   MPI_Recv(&rbuf[0], size, MPI_FLOAT, fromRank, msgTag, MPI_COMM_WORLD, &stat);
-           MPI_Get_count(&stat, MPI_FLOAT, &rcount);
-	   num_data += rcount;
-
-           for(int i = 0; i < expectedHeight; i++, index += dstWidth){
-                   for(int j = 0, k = 0; j < expectedWidth; j++, k++){
-                           dstBuf[index + j] = rbuf[k];
-                   }
-           }
-           printf(" Rank %d in sendStridedBuffer. sending tile data \n", fromRank);
-          // MPI_Send(tile, 1, &mysubarray, toRank, msgTag, MPI_COMM_WORLD);
+	  // MPI_Recv(&rbuf[0], size, MPI_FLOAT, fromRank, msgTag, MPI_COMM_WORLD, &stat);
+          // MPI_Get_count(&stat, MPI_FLOAT, &rcount);
    
    
-   }
+   
 
    MPI_Type_free(&mysubarray);
 

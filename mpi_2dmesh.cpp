@@ -414,7 +414,8 @@ sendStridedBuffer(float *srcBuf,
   // printf(" I am rank %d of %d total ranks \n", myrank, nranks);
    
    int size = sendWidth * sendHeight;
-   int baseDims[] = {size}; // dims of baseArray
+   int baseDims[] = {srcHeight, srcWidth};
+  // int baseDims[] = {size}; // dims of baseArray
    int subDims[] = {sendHeight, sendWidth}; // dims of subArray
 
    
@@ -446,7 +447,8 @@ recvStridedBuffer(float *dstBuf,
 
    int msgTag = 0;
    int size = dstWidth * dstHeight;
-   int baseDims[] = {size}; // dims of baseArray: 3 rows, 4 columns
+   int baseDims[] = {dstHeight, dstWidth};
+  // int baseDims[] = {size}; // dims of baseArray: 3 rows, 4 columns
    int subDims[] = {expectedHeight, expectedWidth}; // dims of subArray: 2 rows, 3 columns
    int recvSize[2];
    MPI_Status stat;
